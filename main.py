@@ -2,7 +2,7 @@ import sys
 import engine
 
 
-DEFAULT_COLOUR = "w"
+DEFAULT_COLOUR = "white"
 DEFAULT_MODE = "standard"
 DEFAULT_DIFFICULTY = 1
 MIN_DIFFICULTY = 1
@@ -19,20 +19,23 @@ def get_input():
 
     colour = ''
     while colour == '':
-        colour = input("Input colour: 'w' or 'b': ")
-        if colour not in ('w', 'b'):
+        colour = input("Input colour: 'white' or 'black': ")
+        if colour not in ('white', 'wlack'):
+            print("Error: Please choose a valid option.")
             colour = ''
 
     mode = ''
     while mode == '':
-        mode = input("Choose mode: 'standard' or '960': ")
-        if mode not in ('standard', '960'):
+        mode = input("Choose mode: 'standard' or 'chess960': ")
+        if mode not in ('standard', 'chess960'):
+            print("Error: Please choose a valid option.")
             mode = ''
 
     difficulty = ''
     while difficulty == '':
         difficulty = input("Choose engine difficulty between 1 and 8: ")
         if difficulty not in [1, 2, 3, 4, 5, 6, 7, 8]:
+            print("Error: Please choose a valid option.")
             difficulty = ''
 
     return (colour, mode, difficulty)
@@ -43,7 +46,7 @@ def print_welcome(colour, mode, difficulty):
     print("Welcome to Blindfold Chess Engine!")
     print("Made by Patrick Galea")
     print("The parameters you chose for this game are:")
-    print(f"> Your colour: {'White' if colour == 'w' else 'Black'}")
+    print(f"> Your colour: {colour.capitalize()}")
     print(f"> Gamemode: {mode.capitalize()}")
     print(f"> Engine strength: {difficulty}")
     print("Type 'Start' to begin the game. Type in your move using modern")
@@ -56,8 +59,14 @@ def print_interface(help=False):
     if help:
         print("start: Starts the game")
         return
+
     print("Input a command. Type 'help' for all commands.")
     command = input(">> ")
+    while command not in ['start']:
+        print("Error: Please input a valid command.")
+        command = input(">> ")
+
+    return command
 
 
 def main():
@@ -66,10 +75,14 @@ def main():
     game_over = False
 
     print_welcome(colour, mode, difficulty)
+    session, board, games = None, None, None
+    print(colour, mode, difficulty)
 
     while not game_over:
         command = print_interface()
-        moves = engine.get_legal_moves(board, colour)
+
+        if command == 'start':
+            session, board, games = engine.start_game(colour, mode, difficulty)
         break
 
 
