@@ -59,7 +59,7 @@ def print_interface():
     """Prints the interactive interface, and receives a command from user"""
     print("\nInput a command. Type 'help' for all commands.")
     command = input(">> ")
-    while command not in ['help', 'start', 'playback']:
+    while command not in ['help', 'start', 'playback', 'move']:
         print("Error: Please input a valid command.")
         print("\nInput a command. Type 'help' for all commands.")
         command = input(">> ")
@@ -100,6 +100,9 @@ def main():
                 break
 
             engine.print_moves(moves)
+
+        elif command == 'move':
+            pass
 
 
 if __name__ == '__main__':

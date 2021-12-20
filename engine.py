@@ -1,4 +1,5 @@
 import berserk  # Using the Lichess API
+import chess
 import os
 
 '''
@@ -6,6 +7,7 @@ Notes:
 - By default, games have no time limit
 - Must set an environment variable 'LICHESS_TOKEN' which is the API token for your lichess account
 - Must tick two options when creating this api token (eventually make a list of steps)
+- pip install berserk/chess libraries
 '''
 
 
@@ -40,10 +42,11 @@ def translate_moves(moves):
 def print_moves(moves):
     """Prints the moves in a nice/standard format"""
     # Todo: new_moves = translate_moves(moves)
+    # TODO: Use 'chess' library instead of re-invent the wheel
     new_moves = moves
     white_move = True
     turn = 1
-    for move in new_moves:
+    for move in new_moves.split(' '):
         if white_move:
             print(f"{turn}. {move:<8}", end="")
             turn += 1
