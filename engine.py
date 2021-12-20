@@ -11,17 +11,46 @@ Notes:
 
 def create_board():
     """Creates and returns the board as a 2d array"""
-    # Find a way to convert these to unicode characters
+    # Note, the colours don't matter which is why there is no differentiation
     return [
-        ['BR', 'BN', 'BB', 'BQ', 'BK', 'BB', 'BN', 'BR'],
-        ['BP', 'BP', 'BP', 'BP', 'BP', 'BP', 'BP', 'BP'],
-        ['--', '--', '--', '--', '--', '--', '--', '--'],
-        ['--', '--', '--', '--', '--', '--', '--', '--'],
-        ['--', '--', '--', '--', '--', '--', '--', '--'],
-        ['--', '--', '--', '--', '--', '--', '--', '--'],
-        ['WP', 'WP', 'WP', 'WP', 'WP', 'WP', 'WP', 'WP'],
-        ['WR', 'WN', 'WB', 'WQ', 'WK', 'WB', 'WN', 'WR']
+        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
+        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+        ['-', '-', '-', '-', '-', '-', '-', '-'],
+        ['-', '-', '-', '-', '-', '-', '-', '-'],
+        ['-', '-', '-', '-', '-', '-', '-', '-'],
+        ['-', '-', '-', '-', '-', '-', '-', '-'],
+        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
     ]
+
+
+def translate_moves(moves):
+    """Translates moves from square-to-square notation to modern notation"""
+    # Todo: COMPLETE THIS FUNCTION
+    # For example, from e2e4 to e4, b1c3 to Nc3
+    # Some situations to consider: (Combinations of?) En-passant, Promotion, Castling, Check
+    board = create_board()
+    new_moves = []
+    for move in moves.split(' '):
+        sq1, sq2 = move[0:2], move[2:4]
+
+    return new_moves
+
+
+def print_moves(moves):
+    """Prints the moves in a nice/standard format"""
+    # Todo: new_moves = translate_moves(moves)
+    new_moves = moves
+    white_move = True
+    turn = 1
+    for move in new_moves:
+        if white_move:
+            print(f"{turn}. {move:<8}", end="")
+            turn += 1
+        else:
+            print(move)
+        white_move = not white_move
+    print()
 
 
 def start_game(colour, mode, difficulty):
@@ -35,7 +64,6 @@ def start_game(colour, mode, difficulty):
 
     # Todo: Add checking to see if there is already a game in progress
     # Assume: There are no games in progress
-    # Idea: instead of 'for val in stream...', assign it to a list
 
     challenges.create_ai(level=difficulty, color=colour)
     for event in board.stream_incoming_events():
@@ -45,17 +73,3 @@ def start_game(colour, mode, difficulty):
 
     print("Game successfully started.")
     return (session, board, games, gid)
-
-
-def print_moves(moves):
-    """Prints the moves in a nice/standard format"""
-    white_move = True
-    turn = 1
-    for move in moves.split(' '):
-        if white_move:
-            print(f"{turn}. {move:<7}", end="")
-            turn += 1
-        else:
-            print(move)
-        white_move = not white_move
-    print()
