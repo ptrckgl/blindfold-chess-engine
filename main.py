@@ -1,4 +1,5 @@
 import sys
+from types import prepare_class
 import engine
 
 
@@ -57,12 +58,13 @@ def print_welcome(colour, mode, difficulty):
 def print_interface(help=False):
     """Prints the interactive interface, and receives a command from user"""
     if help:
-        print("start: Starts the game")
+        print("> start: Starts the game")
+        print("> playback: Prints all moves which have been played so far")
         return
 
     print("Input a command. Type 'help' for all commands.")
     command = input(">> ")
-    while command not in ['start']:
+    while command not in ['start', 'playback']:
         print("Error: Please input a valid command.")
         command = input(">> ")
 
@@ -73,17 +75,29 @@ def main():
     colour, mode, difficulty = get_input()
     board = engine.create_board()
     game_over = False
+    game_started = False
 
     print_welcome(colour, mode, difficulty)
-    session, board, games = None, None, None
+    session, board, games, gid = None, None, None, None
     print(colour, mode, difficulty)
 
     while not game_over:
         command = print_interface()
 
         if command == 'start':
-            session, board, games = engine.start_game(colour, mode, difficulty)
-        break
+            if game_started:
+                print("Oops... You have already started the game!")
+            else:
+                session, board, games, gid = engine.start_game(colour, mode, difficulty)
+                if gid is not None:
+                    game_started = True
+
+        elif not game_started:
+            print("This command cannot be used until the game has started!")
+
+        elif command == 'playback':
+            info = games.export(gid)
+            print(engine.print_moves(info['moves']))
 
 
 if __name__ == '__main__':

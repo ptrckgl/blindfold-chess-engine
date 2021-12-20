@@ -26,22 +26,36 @@ def create_board():
 
 def start_game(colour, mode, difficulty):
     """Starts the game using the Lichess API"""
-    # opp_colour = 'white' if colour == 'black' else 'black'
-    len_moves = {'white': 0, 'black': 1}
     session = berserk.TokenSession(os.environ['LICHESS_TOKEN'])
     # client = berserk.clients.Client(session)
     challenges = berserk.clients.Challenges(session)
     board = berserk.clients.Board(session)
     games = berserk.clients.Games(session)
+    gid = None  # Game id
+
+    # Todo: Add checking to see if there is already a game in progress
+    # Assume: There are no games in progress
+    # Idea: instead of 'for val in stream...', assign it to a list
 
     challenges.create_ai(level=difficulty, color=colour)
     for event in board.stream_incoming_events():
         if event['type'] == 'gameStart':
             gid = event['game']['id']
-            info = games.export(gid)
-            if len(info['moves']) != len_moves[colour]:
-                print("You already have a game in progress. Please finish it!")
-            break
+        break
 
     print("Game successfully started.")
-    return (session, board, games)
+    return (session, board, games, gid)
+
+
+def print_moves(moves):
+    """Prints the moves in a nice/standard format"""
+    white_move = True
+    turn = 1
+    for move in moves.split(' '):
+        if white_move:
+            print(f"{turn}. {move:<7}", end="")
+            turn += 1
+        else:
+            print(move)
+        white_move = not white_move
+    print()
