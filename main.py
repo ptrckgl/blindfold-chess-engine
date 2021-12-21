@@ -58,7 +58,7 @@ def print_interface():
     """Prints the interactive interface, and receives a command from user"""
     print("\nInput a command. Type 'help' for all commands.")
     command = input(">> ")
-    while command not in ['help', 'start', 'playback', 'move']:
+    while command not in ['help', 'start', 'playback', 'move', 'resign']:
         print("Error: Please input a valid command.")
         print("\nInput a command. Type 'help' for all commands.")
         command = input(">> ")
@@ -90,6 +90,7 @@ def main():
             print("- start: Starts the game")
             print("- playback: Prints all moves which have been played so far")
             print("- move: Allows you to insert a move to play")
+            print("- resign: Resign the game")
 
         elif command == 'start':
             if game_started:
@@ -126,6 +127,9 @@ def main():
             while len(get_moves(gid, board).split(' ')) % 2 == mod_val[colour]:
                 pass
             print("Computer Move:", engine.print_moves(get_moves(gid, board), return_last=True))
+
+        elif command == 'resign':
+            engine.resign(gid, board)
 
 
 if __name__ == '__main__':

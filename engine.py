@@ -52,7 +52,6 @@ def start_game(colour, mode, difficulty):
     # client = berserk.clients.Client(session)
     challenges = berserk.clients.Challenges(session)
     board = berserk.clients.Board(session)
-    games = berserk.clients.Games(session)
     gid = None  # Game id
 
     # Todo: Add checking to see if there is already a game in progress
@@ -86,3 +85,11 @@ def make_move(move, made_moves, gid, game_board):
         return True
 
     return False
+
+
+def resign(gid, board):
+    try:
+        board.resign_game(gid)
+        print("Game successfully resigned.")
+    except berserk.exceptions.ResponseError:
+        print("Error: Game is already over.")
