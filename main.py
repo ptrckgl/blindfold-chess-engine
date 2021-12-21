@@ -6,8 +6,6 @@ import engine
 DEFAULT_COLOUR = "white"
 DEFAULT_MODE = "standard"
 DEFAULT_DIFFICULTY = 1
-MIN_DIFFICULTY = 1
-MAX_DIFFICULTY = 8  # Using the Lichess Engine
 
 
 def get_input():
@@ -21,21 +19,21 @@ def get_input():
     colour = ''
     while colour == '':
         colour = input("Input colour: 'white' or 'black': ")
-        if colour not in ('white', 'wlack'):
+        if colour not in ('white', 'black'):
             print("Error: Please choose a valid option.")
             colour = ''
 
     mode = ''
     while mode == '':
-        mode = input("Choose mode: 'standard' or 'chess960': ")
-        if mode not in ('standard', 'chess960'):
+        mode = input("Choose mode: 'standard': ")
+        if mode not in ('standard'):
             print("Error: Please choose a valid option.")
             mode = ''
 
     difficulty = ''
     while difficulty == '':
         difficulty = input("Choose engine difficulty between 1 and 8: ")
-        if difficulty not in [1, 2, 3, 4, 5, 6, 7, 8]:
+        if int(difficulty) not in [1, 2, 3, 4, 5, 6, 7, 8]:
             print("Error: Please choose a valid option.")
             difficulty = ''
 
@@ -83,7 +81,7 @@ def main():
     game_started = False
 
     print_welcome(colour, mode, difficulty)
-    session, board, games, gid = None, None, None, None
+    board, gid = None, None
 
     while not game_over:
         command = print_interface()
@@ -91,14 +89,24 @@ def main():
         if command == 'help':
             print("- start: Starts the game")
             print("- playback: Prints all moves which have been played so far")
+            print("- move: Allows you to insert a move to play")
 
         elif command == 'start':
             if game_started:
                 print("Error: Oops... You have already started the game!")
             else:
-                session, board, games, gid = engine.start_game(colour, mode, difficulty)
+                board, gid = engine.start_game(colour, mode, difficulty)
                 if gid is not None:
                     game_started = True
+
+            # Upon starting the game, if playing black, display the opponents first move
+            if colour == 'black':
+                # While no move has been played yet
+                while '' in get_moves(gid, board).split(' '):
+                    pass
+
+                print("Computer Move:",
+                      engine.print_moves(get_moves(gid, board), return_first=True))
 
         elif not game_started:
             print("Error: This command cannot be used until the game has started!")
@@ -113,7 +121,11 @@ def main():
                 print("That move is invalid. Please make a valid move.")
                 move = input("Input Move: ")
 
-            # Todo: Here, wait until the computer has made a move and print it back out
+            # Wait until the computer has made a move, then print it back out to the user
+            mod_val = {'white': 1, 'black': 0}
+            while len(get_moves(gid, board).split(' ')) % 2 == mod_val[colour]:
+                pass
+            print("Computer Move:", engine.print_moves(get_moves(gid, board), return_last=True))
 
 
 if __name__ == '__main__':

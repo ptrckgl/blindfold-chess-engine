@@ -13,7 +13,7 @@ Notes:
 '''
 
 
-def print_moves(moves):
+def print_moves(moves, return_first=False, return_last=False):
     """Prints the moves in a nice/standard format"""
     game, first, node = chess.pgn.Game(), True, None
 
@@ -24,6 +24,14 @@ def print_moves(moves):
             first = False
         else:
             node = node.add_variation(chess.Move.from_uci(move))
+
+    # Return the first move of the game (this is called when player is black)
+    if return_first:
+        return str(game[0]).split(' ')[1]
+
+    # Return the last move of the game (this is called for displaying computer's move)
+    if return_last:
+        return str(game[0]).split(' ')[-1]
 
     # Print all the moves in modern algebraic notation
     index = 1
@@ -57,7 +65,7 @@ def start_game(colour, mode, difficulty):
         break
 
     print("Game successfully started.")
-    return (session, board, games, gid)
+    return (board, gid)
 
 
 def make_move(move, made_moves, gid, game_board):
@@ -74,6 +82,7 @@ def make_move(move, made_moves, gid, game_board):
     syntax_dict = dict(zip(legal_moves, [str(x) for x in board.legal_moves]))
     if move in legal_moves:
         game_board.make_move(gid, syntax_dict[move])
+        print("Move successfully made.")
         return True
 
     return False
