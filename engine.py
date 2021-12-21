@@ -60,20 +60,20 @@ def start_game(colour, mode, difficulty):
     return (session, board, games, gid)
 
 
-def make_move(move, made_moves):
+def make_move(move, made_moves, gid, game_board):
     """Makes a move on the board after checking it is a legal move."""
     board = chess.Board()
 
     # Check that there has actually been a made move
     if len(made_moves) != 0:
-        for move in made_moves.split(' '):
-            print(move)
-            board.push(chess.Move.from_uci(move))
+        for m in made_moves.split(' '):
+            board.push(chess.Move.from_uci(m))
 
     # Check if the move is legal, make it and return true!
     legal_moves = [board.san(x) for x in board.legal_moves]
-    if move in board.legal_moves:
-        # MAKE MOVE
+    syntax_dict = dict(zip(legal_moves, [str(x) for x in board.legal_moves]))
+    if move in legal_moves:
+        game_board.make_move(gid, syntax_dict[move])
         return True
 
     return False

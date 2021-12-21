@@ -108,10 +108,12 @@ def main():
 
         elif command == 'move':
             moves = get_moves(gid, board)
-
             move = input("Input Move: ")
-            while not engine.make_move(move, moves):
-                move = input("That move is invalid. Please make a valid move.")
+            while not engine.make_move(move, moves, gid, board):
+                print("That move is invalid. Please make a valid move.")
+                move = input("Input Move: ")
+
+            # Todo: Here, wait until the computer has made a move and print it back out
 
 
 if __name__ == '__main__':
