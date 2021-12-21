@@ -50,7 +50,8 @@ def print_welcome(colour, mode, difficulty):
     print(f"> Your colour: {colour.capitalize()}")
     print(f"> Gamemode: {mode.capitalize()}")
     print(f"> Engine strength: {difficulty}")
-    print("Type 'Start' to begin the game. Type in your move using modern")
+    print("\nPlease ensure you have NO games in play before using this!\n")
+    print("Type 'start' to begin the game. Type in your move using modern")
     print("chess notation, and the engine's move will be printed back out.")
     print("Good luck!")
 

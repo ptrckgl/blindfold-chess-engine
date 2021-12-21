@@ -1,5 +1,6 @@
 import berserk  # Using the Lichess API
 import chess
+import chess.pgn
 import os
 
 '''
@@ -11,49 +12,32 @@ Notes:
 '''
 
 
-def create_board():
-    """Creates and returns the board as a 2d array"""
-    # Note, the colours don't matter which is why there is no differentiation
-    return [
-        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
-        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-        ['-', '-', '-', '-', '-', '-', '-', '-'],
-        ['-', '-', '-', '-', '-', '-', '-', '-'],
-        ['-', '-', '-', '-', '-', '-', '-', '-'],
-        ['-', '-', '-', '-', '-', '-', '-', '-'],
-        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
-    ]
-
-
-def translate_moves(moves):
-    """Translates moves from square-to-square notation to modern notation"""
-    # Todo: COMPLETE THIS FUNCTION
-    # For example, from e2e4 to e4, b1c3 to Nc3
-    # Some situations to consider: (Combinations of?) En-passant, Promotion, Castling, Check
-    board = create_board()
-    new_moves = []
-    for move in moves.split(' '):
-        sq1, sq2 = move[0:2], move[2:4]
-
-    return new_moves
-
-
 def print_moves(moves):
     """Prints the moves in a nice/standard format"""
-    # Todo: new_moves = translate_moves(moves)
-    # TODO: Use 'chess' library instead of re-invent the wheel
     new_moves = moves
-    white_move = True
-    turn = 1
+    game = chess.pgn.Game()
+    first = True
+    node = None
+
+    # Insert the moves into the 'game'
     for move in new_moves.split(' '):
-        if white_move:
-            print(f"{turn}. {move:<8}", end="")
-            turn += 1
+        if first:
+            node = game.add_variation(chess.Move.from_uci(move))
+            first = False
         else:
+            node = node.add_variation(chess.Move.from_uci(move))
+
+    # Print all the moves in modern algebraic notation
+    index = 1
+    for move in str(game[0]).split(' '):
+        if index == 1:
+            print(move, end="")
+        elif index == 2:
+            print(f" {move:<8}", end="")
+        else:  # Index == 3
             print(move)
-        white_move = not white_move
-    print()
+            index = 0
+        index += 1
 
 
 def start_game(colour, mode, difficulty):
