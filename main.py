@@ -68,6 +68,15 @@ def print_interface():
     return command
 
 
+def get_moves(gid, board):
+    """Returns a string of the moves played in the game"""
+    moves = ''
+    for val in board.stream_game_state(gid):
+        moves = val['state']['moves']
+        break
+    return moves
+
+
 def main():
     colour, mode, difficulty = get_input()
     game_over = False
@@ -95,15 +104,14 @@ def main():
             print("Error: This command cannot be used until the game has started!")
 
         elif command == 'playback':
-            moves = ''
-            for val in board.stream_game_state(gid):
-                moves = val['state']['moves']
-                break
-
-            engine.print_moves(moves)
+            engine.print_moves(get_moves(gid, board))
 
         elif command == 'move':
-            pass
+            moves = get_moves(gid, board)
+
+            move = input("Input Move: ")
+            while not engine.make_move(move, moves):
+                move = input("That move is invalid. Please make a valid move.")
 
 
 if __name__ == '__main__':

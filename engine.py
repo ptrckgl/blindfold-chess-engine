@@ -1,3 +1,4 @@
+from typing import Iterator
 import berserk  # Using the Lichess API
 import chess
 import chess.pgn
@@ -14,13 +15,10 @@ Notes:
 
 def print_moves(moves):
     """Prints the moves in a nice/standard format"""
-    new_moves = moves
-    game = chess.pgn.Game()
-    first = True
-    node = None
+    game, first, node = chess.pgn.Game(), True, None
 
-    # Insert the moves into the 'game'
-    for move in new_moves.split(' '):
+    # Insert the moves into the 'game' object
+    for move in moves.split(' '):
         if first:
             node = game.add_variation(chess.Move.from_uci(move))
             first = False
@@ -60,3 +58,22 @@ def start_game(colour, mode, difficulty):
 
     print("Game successfully started.")
     return (session, board, games, gid)
+
+
+def make_move(move, made_moves):
+    """Makes a move on the board after checking it is a legal move."""
+    board = chess.Board()
+
+    # Check that there has actually been a made move
+    if len(made_moves) != 0:
+        for move in made_moves.split(' '):
+            print(move)
+            board.push(chess.Move.from_uci(move))
+
+    # Check if the move is legal, make it and return true!
+    legal_moves = [board.san(x) for x in board.legal_moves]
+    if move in board.legal_moves:
+        # MAKE MOVE
+        return True
+
+    return False
