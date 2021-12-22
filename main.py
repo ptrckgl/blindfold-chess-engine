@@ -81,7 +81,7 @@ def main():
     game_started = False
 
     print_welcome(colour, mode, difficulty)
-    board, gid = None, None
+    berserk_board, gid = None, None
 
     while not game_over:
         command = print_interface()
@@ -96,40 +96,49 @@ def main():
             if game_started:
                 print("Error: Oops... You have already started the game!")
             else:
-                board, gid = engine.start_game(colour, mode, difficulty)
+                berserk_board, gid = engine.start_game(colour, mode, difficulty)
                 if gid is not None:
                     game_started = True
 
             # Upon starting the game, if playing black, display the opponents first move
             if colour == 'black':
                 # While no move has been played yet
-                while '' in get_moves(gid, board).split(' '):
+                while '' in get_moves(gid, berserk_board).split(' '):
                     pass
 
                 print("Computer Move:",
-                      engine.print_moves(get_moves(gid, board), return_first=True))
+                      engine.print_moves(get_moves(gid, berserk_board), return_first=True))
 
         elif not game_started:
             print("Error: This command cannot be used until the game has started!")
 
         elif command == 'playback':
-            engine.print_moves(get_moves(gid, board))
+            engine.print_moves(get_moves(gid, berserk_board))
 
         elif command == 'move':
-            moves = get_moves(gid, board)
+            moves = get_moves(gid, berserk_board)
             move = input("Input Move: ")
-            while not engine.make_move(move, moves, gid, board):
+            while not engine.make_move(move, moves, gid, berserk_board):
                 print("That move is invalid. Please make a valid move.")
                 move = input("Input Move: ")
 
+            # Check if the game is over and display to user if so
+            # if engine.game_is_over(gid, berserk_board, get_moves(gid, berserk_board)):
+            #     break
+
             # Wait until the computer has made a move, then print it back out to the user
             mod_val = {'white': 1, 'black': 0}
-            while len(get_moves(gid, board).split(' ')) % 2 == mod_val[colour]:
+            while len(get_moves(gid, berserk_board).split(' ')) % 2 == mod_val[colour]:
                 pass
-            print("Computer Move:", engine.print_moves(get_moves(gid, board), return_last=True))
+            print("Computer Move:",
+                  engine.print_moves(get_moves(gid, berserk_board), return_last=True))
+
+            # Check if the game is over and display to user if so
+            # if engine.game_is_over(gid, berserk_board, get_moves(gid, berserk_board)):
+            #     break
 
         elif command == 'resign':
-            engine.resign(gid, board)
+            engine.resign(gid, berserk_board)
 
 
 if __name__ == '__main__':

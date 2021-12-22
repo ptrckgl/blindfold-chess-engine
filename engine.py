@@ -13,8 +13,8 @@ Notes:
 '''
 
 
-def print_moves(moves, return_first=False, return_last=False):
-    """Prints the moves in a nice/standard format"""
+def generate_game(moves):
+    """Generates a game node which has all moves inserted into it"""
     game, first, node = chess.pgn.Game(), True, None
 
     # Insert the moves into the 'game' object
@@ -24,6 +24,13 @@ def print_moves(moves, return_first=False, return_last=False):
             first = False
         else:
             node = node.add_variation(chess.Move.from_uci(move))
+
+    return game
+
+
+def print_moves(moves, return_first=False, return_last=False):
+    """Prints the moves in a nice/standard format"""
+    game = generate_game(moves)
 
     # Return the first move of the game (this is called when player is black)
     if return_first:
@@ -49,47 +56,55 @@ def print_moves(moves, return_first=False, return_last=False):
 def start_game(colour, mode, difficulty):
     """Starts the game using the Lichess API"""
     session = berserk.TokenSession(os.environ['LICHESS_TOKEN'])
-    # client = berserk.clients.Client(session)
     challenges = berserk.clients.Challenges(session)
-    board = berserk.clients.Board(session)
+    berserk_board = berserk.clients.Board(session)
     gid = None  # Game id
 
     # Todo: Add checking to see if there is already a game in progress
     # Assume: There are no games in progress
 
     challenges.create_ai(level=difficulty, color=colour)
-    for event in board.stream_incoming_events():
+    for event in berserk_board.stream_incoming_events():
         if event['type'] == 'gameStart':
             gid = event['game']['id']
         break
 
     print("Game successfully started.")
-    return (board, gid)
+    return (berserk_board, gid)
 
 
-def make_move(move, made_moves, gid, game_board):
+def make_move(move, made_moves, gid, berserk_board):
     """Makes a move on the board after checking it is a legal move."""
-    board = chess.Board()
-
-    # Check that there has actually been a made move
     if len(made_moves) != 0:
-        for m in made_moves.split(' '):
-            board.push(chess.Move.from_uci(m))
+        board = generate_game(made_moves).end().board()
+    else:
+        board = chess.Board()
 
     # Check if the move is legal, make it and return true!
     legal_moves = [board.san(x) for x in board.legal_moves]
     syntax_dict = dict(zip(legal_moves, [str(x) for x in board.legal_moves]))
     if move in legal_moves:
-        game_board.make_move(gid, syntax_dict[move])
+        berserk_board.make_move(gid, syntax_dict[move])
         print("Move successfully made.")
         return True
 
     return False
 
 
-def resign(gid, board):
+def resign(gid, berserk_board):
+    """Resigns the game"""
     try:
-        board.resign_game(gid)
+        berserk_board.resign_game(gid)
         print("Game successfully resigned.")
     except berserk.exceptions.ResponseError:
         print("Error: Game is already over.")
+
+
+def game_is_over(gid, berserk_board, moves):
+    """Checks if the game is over"""
+    game_board = chess.Board()
+    # Todo: Check other conditions
+    if berserk_board.is_checkmate():
+        print("Checkmate!")
+        return True
+    return False
