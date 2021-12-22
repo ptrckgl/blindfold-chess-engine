@@ -28,6 +28,11 @@ def generate_game(moves):
     return game
 
 
+def generate_game_board(moves):
+    """Generates a board position based on all moves made"""
+    return generate_game(moves).end().board()
+
+
 def print_moves(moves, return_first=False, return_last=False):
     """Prints the moves in a nice/standard format"""
     game = generate_game(moves)
@@ -76,13 +81,13 @@ def start_game(colour, mode, difficulty):
 def make_move(move, made_moves, gid, berserk_board):
     """Makes a move on the board after checking it is a legal move."""
     if len(made_moves) != 0:
-        board = generate_game(made_moves).end().board()
+        game_board = generate_game_board(made_moves)
     else:
-        board = chess.Board()
+        game_board = chess.Board()
 
     # Check if the move is legal, make it and return true!
-    legal_moves = [board.san(x) for x in board.legal_moves]
-    syntax_dict = dict(zip(legal_moves, [str(x) for x in board.legal_moves]))
+    legal_moves = [game_board.san(x) for x in game_board.legal_moves]
+    syntax_dict = dict(zip(legal_moves, [str(x) for x in game_board.legal_moves]))
     if move in legal_moves:
         berserk_board.make_move(gid, syntax_dict[move])
         print("Move successfully made.")
@@ -91,20 +96,24 @@ def make_move(move, made_moves, gid, berserk_board):
     return False
 
 
-def resign(gid, berserk_board):
+def resign(gid, berserk_board, print_output=True):
     """Resigns the game"""
     try:
         berserk_board.resign_game(gid)
-        print("Game successfully resigned.")
+        if print_output:
+            print("Game successfully resigned.")
     except berserk.exceptions.ResponseError:
-        print("Error: Game is already over.")
+        if print_output:
+            print("Error: Game is already over.")
 
 
-def game_is_over(gid, berserk_board, moves):
+def game_is_over(moves):
     """Checks if the game is over"""
-    game_board = chess.Board()
-    # Todo: Check other conditions
-    if berserk_board.is_checkmate():
-        print("Checkmate!")
+    game_board = generate_game_board(moves)
+    outcome = game_board.outcome()
+
+    if game_board.is_game_over():
+        print(f"{outcome.termination.name.capitalize()}!")
         return True
+
     return False
