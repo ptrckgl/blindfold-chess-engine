@@ -19,6 +19,8 @@ def generate_game(moves):
 
     # Insert the moves into the 'game' object
     for move in moves.split(' '):
+        if move == '':
+            return None
         if first:
             node = game.add_variation(chess.Move.from_uci(move))
             first = False
@@ -36,6 +38,10 @@ def generate_game_board(moves):
 def print_moves(moves, return_first=False, return_last=False):
     """Prints the moves in a nice/standard format"""
     game = generate_game(moves)
+
+    # Occurs when no moves of the game have been played
+    if game is None:
+        return
 
     # Return the first move of the game (this is called when player is black)
     if return_first:

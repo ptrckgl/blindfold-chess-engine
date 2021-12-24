@@ -64,7 +64,7 @@ def print_welcome(colour, mode, difficulty):
 def print_interface():
     """Prints the interactive interface, and receives a command from user"""
     print("\nInput a command. Type 'help' for all commands.")
-    command = input(">> ")
+    command = input(">> ").lower()
     while command not in ['help', 'start', 'playback', 'move', 'resign', 'exit']:
         print("Error: Please input a valid command.")
         print("\nInput a command. Type 'help' for all commands.")
@@ -111,6 +111,7 @@ def main():
             elif command == 'start':
                 if game_started:
                     print("Error: Oops... You have already started the game!")
+                    continue
                 else:
                     berserk_board, gid = engine.start_game(colour, mode, difficulty)
                     if gid is not None:
@@ -129,6 +130,7 @@ def main():
                 print("Error: This command cannot be used until the game has started!")
 
             elif command == 'playback':
+                print(f"The link to the game is: lichess.org/{gid}")
                 engine.print_moves(get_moves(gid, berserk_board))
 
             elif command == 'move':
@@ -165,7 +167,10 @@ def main():
             break
 
         print("\nThe game is over. Thanks for playing!")
-        if len(input("Press enter to exit, or input any character to play again: ")) == 0:
+        print("The final playback of the game is as follows:\n")
+        print(f"The link to the game is: lichess.org/{gid}")
+        engine.print_moves(get_moves(gid, berserk_board))
+        if len(input("\nPress enter to exit, or input any character to play again: ")) == 0:
             sys.exit()
         cls_function()
 
