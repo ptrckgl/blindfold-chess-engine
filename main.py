@@ -98,7 +98,7 @@ def main():
             if command == 'help':
                 print("- start: Starts the game")
                 print("- playback: Prints all moves which have been played so far")
-                print("- move: Allows you to insert a move to play")
+                print("- move: Allows you to insert a move to play. Type 'back' to cancel move.")
                 print("- resign: Resign the game")
                 print("- exit: Terminates the program")
 
@@ -134,9 +134,12 @@ def main():
             elif command == 'move':
                 moves = get_moves(gid, berserk_board)
                 move = input("Input Move: ")
-                while not engine.make_move(move, moves, gid, berserk_board):
+                while move != 'back' and not engine.make_move(move, moves, gid, berserk_board):
                     print("That move is invalid. Please make a valid move.")
                     move = input("Input Move: ")
+
+                if move == 'back':
+                    continue
 
                 # Check if the game is over and display to user if so
                 if engine.game_is_over(get_moves(gid, berserk_board)):
