@@ -1,6 +1,5 @@
 import sys
 import os
-from types import prepare_class
 import engine
 
 
@@ -73,15 +72,6 @@ def print_interface():
     return command
 
 
-def get_moves(gid, board):
-    """Returns a string of the moves played in the game"""
-    moves = ''
-    for val in board.stream_game_state(gid):
-        moves = val['state']['moves']
-        break
-    return moves
-
-
 def main():
     playing = True
 
@@ -96,15 +86,10 @@ def main():
             command = print_interface()
 
             if command == 'help':
-                print("- start: Starts the game")
-                print("- playback: Prints all moves which have been played so far")
-                print("- move: Allows you to insert a move to play. Type 'back' to cancel move.")
-                print("- resign: Resign the game")
-                print("- exit: Terminates the program")
+                engine.command_help()
 
             elif command == 'exit':
-                if game_started:
-                    engine.resign(gid, berserk_board, print_output=False)
+                engine.command_exit(gid, berserk_board, game_started)
                 game_over = True
                 playing = False
 
@@ -112,55 +97,21 @@ def main():
                 if game_started:
                     print("Error: Oops... You have already started the game!")
                     continue
-                else:
-                    berserk_board, gid = engine.start_game(colour, mode, difficulty)
-                    if gid is not None:
-                        game_started = True
 
-                # Upon starting the game, if playing black, display the opponents first move
-                if colour == 'black':
-                    # While no move has been played yet
-                    while '' in get_moves(gid, berserk_board).split(' '):
-                        pass
-
-                    print("Computer Move:",
-                          engine.print_moves(get_moves(gid, berserk_board), return_first=True))
+                berserk_board, gid = engine.command_start(colour, mode, difficulty)
+                game_started = True
 
             elif not game_started:
                 print("Error: This command cannot be used until the game has started!")
 
             elif command == 'playback':
-                print(f"The link to the game is: lichess.org/{gid}")
-                engine.print_moves(get_moves(gid, berserk_board))
+                engine.command_playback(gid, berserk_board)
 
             elif command == 'move':
-                moves = get_moves(gid, berserk_board)
-                move = input("Input Move: ")
-                while move != 'back' and not engine.make_move(move, moves, gid, berserk_board):
-                    print("That move is invalid. Please make a valid move.")
-                    move = input("Input Move: ")
-
-                if move == 'back':
-                    continue
-
-                # Check if the game is over and display to user if so
-                if engine.game_is_over(get_moves(gid, berserk_board)):
-                    game_over = True
-                    break
-
-                # Wait until the computer has made a move, then print it back out to the user
-                mod_val = {'white': 1, 'black': 0}
-                while len(get_moves(gid, berserk_board).split(' ')) % 2 == mod_val[colour]:
-                    pass
-                print("Computer Move:",
-                      engine.print_moves(get_moves(gid, berserk_board), return_last=True))
-
-                # Check if the game is over and display to user if so
-                if engine.game_is_over(get_moves(gid, berserk_board)):
-                    game_over = True
+                game_over = engine.command_move(gid, berserk_board, colour)
 
             elif command == 'resign':
-                engine.resign(gid, berserk_board)
+                engine.command_resign(gid, berserk_board)
                 game_over = True
 
         if not playing:
@@ -168,8 +119,7 @@ def main():
 
         print("\nThe game is over. Thanks for playing!")
         print("The final playback of the game is as follows:\n")
-        print(f"The link to the game is: lichess.org/{gid}")
-        engine.print_moves(get_moves(gid, berserk_board))
+        engine.command_playback(gid, berserk_board)
         if len(input("\nPress enter to exit, or input any character to play again: ")) == 0:
             sys.exit()
         cls_function()

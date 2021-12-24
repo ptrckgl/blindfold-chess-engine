@@ -1,4 +1,3 @@
-from typing import Iterator
 import berserk  # Using the Lichess API
 import chess
 import chess.pgn
@@ -11,6 +10,15 @@ Notes:
 - Must tick two options when creating this api token (eventually make a list of steps)
 - pip install berserk/chess libraries
 '''
+
+
+def get_moves(gid, board):
+    """Returns a string of the moves played in the game"""
+    moves = ''
+    for val in board.stream_game_state(gid):
+        moves = val['state']['moves']
+        break
+    return moves
 
 
 def generate_game(moves):
@@ -69,7 +77,7 @@ def start_game(colour, mode, difficulty):
     session = berserk.TokenSession(os.environ['LICHESS_TOKEN'])
     challenges = berserk.clients.Challenges(session)
     berserk_board = berserk.clients.Board(session)
-    gid = None  # Game id
+    gid = None
 
     # Todo: Add checking to see if there is already a game in progress
     # Assume: There are no games in progress
@@ -102,17 +110,6 @@ def make_move(move, made_moves, gid, berserk_board):
     return False
 
 
-def resign(gid, berserk_board, print_output=True):
-    """Resigns the game"""
-    try:
-        berserk_board.resign_game(gid)
-        if print_output:
-            print("Game successfully resigned.")
-    except berserk.exceptions.ResponseError:
-        if print_output:
-            print("Error: Game is already over.")
-
-
 def game_is_over(moves):
     """Checks if the game is over"""
     game_board = generate_game_board(moves)
@@ -123,3 +120,76 @@ def game_is_over(moves):
         return True
 
     return False
+
+
+def command_help():
+    """The help command"""
+    print("- start: Starts the game")
+    print("- playback: Prints all moves which have been played so far")
+    print("- move: Allows you to insert a move to play. Type 'back' to cancel move.")
+    print("- resign: Resign the game")
+    print("- exit: Terminates the program")
+
+
+def command_exit(gid, berserk_board, game_started):
+    """The exit command"""
+    if game_started:
+        command_resign(gid, berserk_board, print_output=False)
+
+
+def command_start(colour, mode, difficulty):
+    """The start command"""
+    berserk_board, gid = start_game(colour, mode, difficulty)
+
+    # Upon starting the game, if playing black, display the opponents first move
+    if colour == 'black':
+        # While no move has been played yet
+        while '' in get_moves(gid, berserk_board).split(' '):
+            pass
+
+        print("Computer Move:", print_moves(get_moves(gid, berserk_board), return_first=True))
+    
+    return berserk_board, gid
+
+
+def command_playback(gid, berserk_board):
+    """The playback command"""
+    print(f"The link to the game is: lichess.org/{gid}")
+    print_moves(get_moves(gid, berserk_board))
+
+
+def command_move(gid, berserk_board, colour):
+    """The (make) move command. Returns True if the game is over, False if not."""
+    moves = get_moves(gid, berserk_board)
+    move = input("Input Move: ")
+    while move != 'back' and not make_move(move, moves, gid, berserk_board):
+        print("That move is invalid. Please make a valid move.")
+        move = input("Input Move: ")
+
+    if move == 'back':
+        return False
+
+    # Check if the game is over and display to user if so
+    if game_is_over(get_moves(gid, berserk_board)):
+        return True
+
+    # Wait until the computer has made a move, then print it back out to the user
+    mod_val = {'white': 1, 'black': 0}
+    while len(get_moves(gid, berserk_board).split(' ')) % 2 == mod_val[colour]:
+        pass
+    print("Computer Move:", print_moves(get_moves(gid, berserk_board), return_last=True))
+
+    # Check if the game is over and display to user if so
+    if game_is_over(get_moves(gid, berserk_board)):
+        return True
+
+
+def command_resign(gid, berserk_board, print_output=True):
+    """The resign command"""
+    try:
+        berserk_board.resign_game(gid)
+        if print_output:
+            print("Game successfully resigned.")
+    except berserk.exceptions.ResponseError:
+        if print_output:
+            print("Error: Game is already over.")
