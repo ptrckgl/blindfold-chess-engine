@@ -11,6 +11,7 @@ The aim of this project is to allow you to play chess on the Lichess website... 
 
 ### Important Notes
 - At this moment in time, all games created have no time limit, and are always against the Lichess Bot (From level 1 to 8)
+- On occasion, after making a move it seems like there was no response from the server. In this case, press enter to give the terminal a 'nudge' and it should return the computer's move as normal.
 
 ### Usage/Commands
 - Usage: 'python3 main.py [default]'. Including the 'default' argument automatically assigns game parameters, being {'colour': 'white', 'mode': 'standard', 'difficulty': 1}. If the 'default' argument is left out, the user will be able to choose these values.

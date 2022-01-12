@@ -2,14 +2,7 @@ import berserk  # Using the Lichess API
 import chess
 import chess.pgn
 import os
-
-'''
-Notes:
-- By default, games have no time limit
-- Must set an environment variable 'LICHESS_TOKEN' which is the API token for your lichess account
-- Must tick two options when creating this api token (eventually make a list of steps)
-- pip install berserk/chess libraries
-'''
+import interruptingcow
 
 
 def get_moves(gid, board):
@@ -79,8 +72,15 @@ def start_game(colour, mode, difficulty):
     berserk_board = berserk.clients.Board(session)
     gid = None
 
-    # Todo: Add checking to see if there is already a game in progress
-    # Assume: There are no games in progress
+    print("Terminating all games in progress...")
+    try:
+        # Execute it for 3 seconds (should be plenty of time to resign games in progress)
+        with interruptingcow.timeout(3, exception=RuntimeError):
+            for event in berserk_board.stream_incoming_events():
+                if event['type'] == 'gameStart':
+                    command_resign(event['game']['id'], berserk_board, print_output=False)
+    except RuntimeError:
+        pass
 
     challenges.create_ai(level=difficulty, color=colour)
     for event in berserk_board.stream_incoming_events():
@@ -89,6 +89,7 @@ def start_game(colour, mode, difficulty):
         break
 
     print("Game successfully started.")
+    print(f"The link to the game is: lichess.org/{gid}")
     return (berserk_board, gid)
 
 
@@ -124,11 +125,12 @@ def game_is_over(moves):
 
 def command_help():
     """The help command"""
-    print("- start: Starts the game")
-    print("- playback: Prints all moves which have been played so far")
-    print("- move: Allows you to insert a move to play. Type 'back' to cancel move.")
-    print("- resign: Resign the game")
-    print("- exit: Terminates the program")
+    print("- start: Starts the game and resigns all current games in progress.")
+    print("- playback: Prints all moves which have been played so far.")
+    print("- move: Allows you to input a move to play. Type 'back' to cancel making a move.")
+    print("- resign: Resign the game.")
+    print("- exit: Terminates the program.")
+    print("- clear: Clears the screen.")
 
 
 def command_exit(gid, berserk_board, game_started):
@@ -148,7 +150,7 @@ def command_start(colour, mode, difficulty):
             pass
 
         print("Computer Move:", print_moves(get_moves(gid, berserk_board), return_first=True))
-    
+
     return berserk_board, gid
 
 

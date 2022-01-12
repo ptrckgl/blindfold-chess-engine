@@ -53,18 +53,22 @@ def print_welcome(colour, mode, difficulty):
     print("The parameters you chose for this game are:")
     print(f"> Your colour: {colour.capitalize()}")
     print(f"> Gamemode: {mode.capitalize()}")
-    print(f"> Engine strength: {difficulty}")
-    print("\nPlease ensure you have NO games in play before using this!\n")
-    print("Type 'start' to begin the game. Type in your move using modern")
-    print("chess notation, and the engine's move will be printed back out.")
-    print("Good luck!")
+    print(f"> Engine strength: {difficulty}\n")
+    print("Type 'start' to begin the game. Note that this will resign all games in progress.")
+    print("To move, use the command 'move' and type in your move using modern chess notation.")
+    print("The computers move will be printed back out to you.")
+    print("Good luck! :)")
 
 
-def print_interface():
+def print_interface(cleared=False):
     """Prints the interactive interface, and receives a command from user"""
-    print("\nInput a command. Type 'help' for all commands.")
+    # So after using 'clear', theres not an annoying blank line at the top of the command line!
+    if not cleared:
+        print("")
+
+    print("Input a command. Type 'help' for a description of all available commands.")
     command = input(">> ").lower()
-    while command not in ['help', 'start', 'playback', 'move', 'resign', 'exit']:
+    while command not in ['help', 'start', 'playback', 'move', 'resign', 'exit', 'clear']:
         print("Error: Please input a valid command.")
         print("\nInput a command. Type 'help' for all commands.")
         command = input(">> ")
@@ -81,12 +85,16 @@ def main():
         game_started = False
         print_welcome(colour, mode, difficulty)
         berserk_board, gid = None, None
+        command = ""
 
         while not game_over:
-            command = print_interface()
+            command = print_interface(cleared=(command == 'clear'))
 
             if command == 'help':
                 engine.command_help()
+
+            elif command == 'clear':
+                cls_function()
 
             elif command == 'exit':
                 engine.command_exit(gid, berserk_board, game_started)
