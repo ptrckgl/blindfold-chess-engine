@@ -8,7 +8,7 @@ The aim of this project is to allow you to play chess on the Lichess website... 
 
 - Run 'pip install berserk', 'pip install chess' and 'pip install interruptingcow' on your command line.
 - You must create a Lichess account before using this program.
-- You must create an API token for your Lichess account, which can be achieved by selecting your account name (top right) -> 'Preferences' -> 'API access tokens' -> Large Blue '+'. Name your access token, and select the two options 1. 'Create, accept, decline challenges' and 2. 'Play games with the board API'. After clicking 'submit', you will see a personal access token which will only be shown ONCE. Complete the next step before exiting this page.
+- You must create an API token for your Lichess account, which can be achieved by selecting your account name (top right) -> 'Preferences' -> 'API access tokens' -> Large Blue '+'. Name your access token, and select the two options 1. 'Send, accept and reject challenges' and 2. 'Play games with the board API'. After clicking 'submit', you will see a personal access token which will only be shown ONCE. Complete the next step before exiting this page.
 - Create an environment variable on your linux terminal named 'LICHESS_TOKEN' which is equal to the personal access token you have previously created. I would recommend putting this inside of your ~/.bashrc file.
 
 ### Important Notes

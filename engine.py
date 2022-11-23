@@ -82,7 +82,12 @@ def start_game(colour, mode, difficulty):
     except RuntimeError:
         pass
 
-    challenges.create_ai(level=difficulty, color=colour)
+    # Not sure why this change is required...
+    try:
+        challenges.create_ai(level=difficulty, color=colour)
+    except:
+        pass
+    
     for event in berserk_board.stream_incoming_events():
         if event['type'] == 'gameStart':
             gid = event['game']['id']
@@ -104,7 +109,10 @@ def make_move(move, made_moves, gid, berserk_board):
     legal_moves = [game_board.san(x) for x in game_board.legal_moves]
     syntax_dict = dict(zip(legal_moves, [str(x) for x in game_board.legal_moves]))
     if move in legal_moves:
-        berserk_board.make_move(gid, syntax_dict[move])
+        try:
+            berserk_board.make_move(gid, syntax_dict[move])
+        except:
+            pass
         print("Move successfully made.")
         return True
 
@@ -136,7 +144,10 @@ def command_help():
 def command_exit(gid, berserk_board, game_started):
     """The exit command"""
     if game_started:
-        command_resign(gid, berserk_board, print_output=False)
+        try:
+            command_resign(gid, berserk_board, print_output=False)
+        except:
+            pass
 
 
 def command_start(colour, mode, difficulty):
@@ -189,7 +200,10 @@ def command_move(gid, berserk_board, colour):
 def command_resign(gid, berserk_board, print_output=True):
     """The resign command"""
     try:
-        berserk_board.resign_game(gid)
+        try:
+            berserk_board.resign_game(gid)
+        except:
+            pass
         if print_output:
             print("Game successfully resigned.")
     except berserk.exceptions.ResponseError:
